@@ -5,7 +5,7 @@
         <div class="d-flex align-items-center mb-2" style="gap: 0.6rem;">
             <a href="{{ url('/') }}" class="d-inline-flex align-items-center" style="gap:0.5rem;">
                 <img
-                    src="{{ asset('the_boys_logo.jpg') }}"
+                    src="{{ asset('images/the_boys_logo.jpg') }}"
                     alt="The Boys Logo"
                     style="height:42px;width:auto;border-radius:0.4rem;object-fit:cover;background:#0f172a;"
                 >
@@ -35,7 +35,7 @@
 
                     <button type="submit" class="tb-btn-primary d-inline-flex align-items-center">
                         <img
-                            src="{{ asset('search_icon.jpg') }}"
+                            src="{{ asset('images/search_icon.png') }}"
                             alt="Search"
                             style="height:15px;width:15px;opacity:0.9;margin-right:0.3rem;"
                         >
@@ -53,7 +53,7 @@
                         style="border:1px solid rgba(148,163,184,0.5);white-space:nowrap;"
                     >
                         <img
-                            src="{{ asset('filter_icon.jpg') }}"
+                            src="{{ asset('images/filter_icon.png') }}"
                             alt="Filter"
                             style="height:16px;width:16px;opacity:0.85;margin-right:0.35rem;"
                         >
@@ -69,12 +69,23 @@
 
             {{-- RIGHT: Navbar --}}
             <nav class="d-flex flex-wrap align-items-center justify-content-end" style="gap:0.4rem;">
-                <a href="{{ url('/') }}" class="tb-pill-link">Home</a>
-                <a href="{{ url('/products') }}" class="tb-pill-link">Products</a>
-                <a href="{{ url('/cart') }}" class="tb-pill-link">Cart</a>
-                <a href="{{ url('/account') }}" class="tb-pill-link">Account</a>
-            </nav>
 
+                <a href="{{ route('home') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
+                    <img src="{{ asset('images/home_icon.jpg') }}" alt="Home" style="height:16px;width:16px;opacity:0.85;">
+                    Home
+                </a>
+
+                <a href="{{ route('cart') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
+                    <img src="{{ asset('images/cart_icon.png') }}" alt="Cart" style="height:16px;width:16px;opacity:0.85;">
+                    Cart
+                </a>
+
+                <a href="{{ route('account') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
+                    <img src="{{ asset('images/account_icon.jpg') }}" alt="Account" style="height:16px;width:16px;opacity:0.85;">
+                    Account
+                </a>
+
+            </nav>
         </div>
     </div>
 </header>
