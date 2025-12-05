@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Product;
+use App\Models\Category;
 
 class CategoryController extends Controller
 {
@@ -11,99 +13,61 @@ class CategoryController extends Controller
      */
     public function home(Request $request)
     {
-        $categories = collect([
-            ['id' => 1, 'name' => 'electronics'],
-            ['id' => 2, 'name' => 'toys'],
-        ]);
+        $categoryId = $request->input('category');  // category_id
+        $query      = $request->input('q');         // search term
 
-        // Map: [id => name] for easy lookup
-        $categoryNames = $categories->pluck('name', 'id');
+        // Load categories from DB
+        $categories = Category::orderBy('name')->get();
 
-        // Hardcoded products
-        $allProducts = collect([
-            [
-                'id'          => 1,
-                'name'        => 'Gaming Headset',
-                'category_id' => 1,
-                'price'       => 350000,
-                'image'       => 'https://via.placeholder.com/400x260?text=Gaming+Headset',
-            ],
-            [
-                'id'          => 2,
-                'name'        => 'Mechanical Keyboard',
-                'category_id' => 1,
-                'price'       => 550000,
-                'image'       => 'https://via.placeholder.com/400x260?text=Mechanical+Keyboard',
-            ],
-            [
-                'id'          => 3,
-                'name'        => '4K Monitor',
-                'category_id' => 1,
-                'price'       => 2500000,
-                'image'       => 'https://via.placeholder.com/400x260?text=4K+Monitor',
-            ],
-            [
-                'id'          => 4,
-                'name'        => 'Action Figure – Hero',
-                'category_id' => 2,
-                'price'       => 150000,
-                'image'       => 'https://via.placeholder.com/400x260?text=Action+Figure',
-            ],
-            [
-                'id'          => 5,
-                'name'        => 'RC Car',
-                'category_id' => 2,
-                'price'       => 280000,
-                'image'       => 'https://via.placeholder.com/400x260?text=RC+Car',
-            ],
-            [
-                'id'          => 6,
-                'name'        => 'Building Blocks Set',
-                'category_id' => 2,
-                'price'       => 120000,
-                'image'       => 'https://via.placeholder.com/400x260?text=Building+Blocks',
-            ],
-        ]);
+        // Base product query
+        $products = Product::query();
 
-        $categoryId = $request->input('category');
-        $query      = $request->input('q');
+        // FILTER BY CATEGORY
+        if ($categoryId) {
+            $products->where('category_id', intval($categoryId));
+        }
 
-        // Filter products by category_id and name
-        $products = $allProducts
-            ->when($categoryId, function ($c) use ($categoryId) {
-                return $c->where('category_id', intval($categoryId));
-            })
-            ->when($query, function ($c) use ($query) {
-                $q = mb_strtolower($query);
-                return $c->filter(function ($p) use ($q) {
-                    return str_contains(mb_strtolower($p['name']), $q);
-                });
-            });
+        // FILTER BY SEARCH
+        if ($query) {
+            $q = strtolower($query);
+            $products->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]);
+        }
 
-        // All categories
-        $allCategories = $categories;
+        $products = $products->get();
 
-        // Recent categories: selected category first, then others
-        $recentCategories = $allCategories;
-        $categoryIdInt = $categoryId ? intval($categoryId) : null;
+        // RECENT CATEGORIES (max 3)
+        $recentCategories = $categories;
 
-        if ($categoryIdInt && $allCategories->pluck('id')->contains($categoryIdInt)) {
-            $selected = $allCategories->firstWhere('id', $categoryIdInt);
+        if ($categoryId && $categories->pluck('id')->contains(intval($categoryId))) {
+            $selected = $categories->firstWhere('id', intval($categoryId));
 
             $recentCategories = collect([$selected])->merge(
-                $allCategories->where('id', '!=', $categoryIdInt)
+                $categories->where('id', '!=', intval($categoryId))
             );
         }
 
-        // Limit to 3
         $recentCategories = $recentCategories->take(3);
 
         return view('home', [
             'products'         => $products,
-            'categoryId'       => $categoryIdInt,
+            'categoryId'       => $categoryId,
             'query'            => $query,
             'recentCategories' => $recentCategories,
-            'categoryNames'    => $categoryNames,
+            'categories'       => $categories,
         ]);
+    }
+
+    /**
+     * Product detail page.
+     */
+    public function productDetail($id)
+    {
+        $product = Product::with('category')->find($id);
+
+        if (!$product) {
+            abort(404, "Product not found.");
+        }
+
+        return view('productdetail', compact('product'));
     }
 }

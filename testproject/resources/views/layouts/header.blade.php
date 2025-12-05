@@ -98,7 +98,7 @@
             <nav class="d-flex flex-wrap align-items-center justify-content-end" style="gap:0.4rem;">
 
                 <a href="{{ route('home') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
-                    <img src="{{ asset('images/home_icon.jpg') }}" alt="Home" style="height:16px;width:16px;opacity:0.85;">
+                    <img src="{{ asset('images/home_icon.png') }}" alt="Home" style="height:16px;width:16px;opacity:0.85;">
                     Home
                 </a>
 
@@ -108,7 +108,7 @@
                 </a>
 
                 <a href="{{ route('account') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
-                    <img src="{{ asset('images/account_icon.jpg') }}" alt="Account" style="height:16px;width:16px;opacity:0.85;">
+                    <img src="{{ asset('images/account_icon.png') }}" alt="Account" style="height:16px;width:16px;opacity:0.85;">
                     Account
                 </a>
 
