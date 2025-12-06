@@ -18,16 +18,13 @@ class Product extends Model
         'category_id',
     ];
 
-    public function category()
+    public function category() 
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class); // produk milik 1 kategori
     }
 
-    /**
-     * Cart rows that reference this product.
-     */
-    public function carts()
+    public function cartItems() 
     {
-        return $this->hasMany(Cart::class);
+        return $this->hasMany(CartItem::class); // Produk bisa muncul di banyak cart_items
     }
 }

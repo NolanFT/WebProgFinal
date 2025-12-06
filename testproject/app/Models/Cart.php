@@ -11,23 +11,15 @@ class Cart extends Model
 
     protected $fillable = [
         'user_id',
-        'product_id',
-        'quantity',
     ];
 
-    /**
-     * User who owns this cart row.
-     */
-    public function user()
+    public function user() 
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class); // Cart milik 1 user
     }
 
-    /**
-     * Product in this cart row.
-     */
-    public function product()
+    public function items()
     {
-        return $this->belongsTo(Product::class);
+        return $this->hasMany(CartItem::class); // Cart mempunyai banyak cart_items
     }
 }

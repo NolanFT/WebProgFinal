@@ -14,7 +14,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', // 'admin' or 'user'
+        'role',
+        'profpic',
     ];
 
     protected $hidden = [
@@ -29,16 +30,8 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Cart rows belonging to this user.
-     */
-    public function carts()
+    public function cart() 
     {
-        return $this->hasMany(Cart::class);
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
+        return $this->hasOne(Cart::class); // 1 User mempunyai 1 Cart
     }
 }

@@ -13,11 +13,8 @@ class Category extends Model
         'name',
     ];
 
-    /**
-     * Products in this category.
-     */
-    public function products()
+    public function products() 
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Product::class); // 1 Kategori mempunyai banyak produk
     }
 }
