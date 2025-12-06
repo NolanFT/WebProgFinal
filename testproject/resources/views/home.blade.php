@@ -35,7 +35,7 @@
             <div class="d-flex flex-wrap" style="gap:0.5rem;">
 
                 @php
-                    $isAllActive = !$categoryId;
+                    $isAllActive = is_null($categoryId);
                 @endphp
 
                 {{-- All --}}
@@ -75,22 +75,25 @@
             </div>
         </div>
 
-        @if($categoryId || $query)
+        @if(!is_null($categoryId) || $query)
             <div style="font-size:0.8rem;color:var(--tb-gray-text);">
-                @if($categoryId)
+                @if(!is_null($categoryId))
                     <span>
                         Filter:
                         <strong>{{ ucfirst($categoryNames[$categoryId] ?? 'Unknown') }}</strong>
                     </span>
                 @endif
-                @if($categoryId && $query)
+
+                @if(!is_null($categoryId) && $query)
                     <span> · </span>
                 @endif
+
                 @if($query)
                     <span>Search: <strong>{{ $query }}</strong></span>
                 @endif
             </div>
         @endif
+
     </section>
 
     {{-- Product grid --}}
@@ -121,18 +124,32 @@
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     @php
                                         $catId = $product['category_id'];
-                                        $catUrl = url('/?category='.$catId.($query ? '&q='.urlencode($query) : ''));
-                                        $catLabel = ucfirst($categoryNames[$catId] ?? 'Unknown');
+
+                                        if (!is_null($catId)) {
+                                            $catUrl   = url('/?category=' . $catId . ($query ? '&q=' . urlencode($query) : ''));
+                                            $catLabel = ucfirst($categoryNames[$catId] ?? 'Unknown');
+                                        } else {
+                                            $catUrl   = null;
+                                            $catLabel = 'Uncategorized';
+                                        }
                                     @endphp
 
-                                    {{-- Clickable category badge (filters by that category) --}}
-                                    <a
-                                        href="{{ $catUrl }}"
-                                        class="badge rounded-pill"
-                                        style="background:#facc15;color:#111827;font-size:0.7rem;text-decoration:none;cursor:pointer;"
-                                    >
-                                        {{ $catLabel }}
-                                    </a>
+                                    @if(!is_null($catId))
+                                        <a
+                                            href="{{ $catUrl }}"
+                                            class="badge rounded-pill"
+                                            style="background:#facc15;color:#111827;font-size:0.7rem;text-decoration:none;cursor:pointer;"
+                                        >
+                                            {{ $catLabel }}
+                                        </a>
+                                    @else
+                                        <span
+                                            class="badge rounded-pill"
+                                            style="background:#9ca3af;color:#111827;font-size:0.7rem;"
+                                        >
+                                            {{ $catLabel }}
+                                        </span>
+                                    @endif
                                 </div>
 
                                 {{-- Clickable name --}}

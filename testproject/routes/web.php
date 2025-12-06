@@ -29,17 +29,19 @@ Route::view('/cart', 'cart')->name('cart');
 Route::view('/account', 'account')->name('account');
 
 // Admin
-// Admin dashboard
-Route::get('/admin', [AdminController::class, 'index'])->name('admin');
+Route::middleware('auth')->group(function () {
+    //Admin Page
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin');
 
-// PRODUCT CRUD (admin-only)
-Route::post('/admin/products', [AdminController::class, 'storeProduct'])->name('admin.products.store');
-Route::get('/admin/products/{product}/edit', [AdminController::class, 'editProduct'])->name('admin.products.edit');
-Route::put('/admin/products/{product}', [AdminController::class, 'updateProduct'])->name('admin.products.update');
-Route::delete('/admin/products/{product}', [AdminController::class, 'destroyProduct'])->name('admin.products.destroy');
+    //Products
+    Route::post('/admin/products', [AdminController::class, 'storeProduct'])->name('admin.products.store');
+    Route::get('/admin/products/{product}/edit', [AdminController::class, 'editProduct'])->name('admin.products.edit');
+    Route::put('/admin/products/{product}', [AdminController::class, 'updateProduct'])->name('admin.products.update');
+    Route::delete('/admin/products/{product}', [AdminController::class, 'destroyProduct'])->name('admin.products.destroy');
 
-// CATEGORY CRUD (admin-only)
-Route::post('/admin/categories', [AdminController::class, 'storeCategory'])->name('admin.categories.store');
-Route::get('/admin/categories/{category}/edit', [AdminController::class, 'editCategory'])->name('admin.categories.edit');
-Route::put('/admin/categories/{category}', [AdminController::class, 'updateCategory'])->name('admin.categories.update');
-Route::delete('/admin/categories/{category}', [AdminController::class, 'destroyCategory'])->name('admin.categories.destroy');
+    //Categories
+    Route::post('/admin/categories', [AdminController::class, 'storeCategory'])->name('admin.categories.store');
+    Route::get('/admin/categories/{category}/edit', [AdminController::class, 'editCategory'])->name('admin.categories.edit');
+    Route::put('/admin/categories/{category}', [AdminController::class, 'updateCategory'])->name('admin.categories.update');
+    Route::delete('/admin/categories/{category}', [AdminController::class, 'destroyCategory'])->name('admin.categories.destroy');
+});

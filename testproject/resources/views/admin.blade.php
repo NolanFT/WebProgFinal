@@ -3,9 +3,8 @@
 @section('title', 'The Boys – Home')
 
 @php
-    // Ensure we have simple local vars
-    $currentCategoryId = $categoryId ? intval($categoryId) : null;
-    $currentQuery      = $query ?? request('q');
+    $currentCategoryId = request()->filled('category') ? (int) request('category') : null;
+    $currentQuery      = request('q');
 @endphp
 
 @section('content')
@@ -44,9 +43,8 @@
                 {{-- All --}}
                 @php
                     $allUrl = $currentQuery
-                        ? url('/?q=' . urlencode($currentQuery))
-                        : url('/');
-                    $allActive = is_null($currentCategoryId);
+                    ? url('/admin?q=' . urlencode($currentQuery))
+                    : url('/admin');
                 @endphp
 
                 <a
@@ -65,7 +63,7 @@
                     @php
                         $active    = $currentCategoryId === $cat->id;
                         $qParam    = $currentQuery ? '&q=' . urlencode($currentQuery) : '';
-                        $catUrl    = url('/?category=' . $cat->id . $qParam);
+                        $catUrl = url('/admin?category=' . $cat->id . $qParam);
                         $bgColor   = $active ? 'var(--tb-blue)' : 'transparent';
                         $textColor = $active ? '#f9fafb' : '#e5e7eb';
                     @endphp
@@ -161,11 +159,23 @@
                                     Rp{{ number_format($product->price, 0, ',', '.') }}
                                 </p>
 
-                                {{-- Add to cart button (no logic yet) --}}
+                                {{-- Edit & Delete Button --}}
                                 <div class="d-flex gap-2">
-                                    <button class="tb-btn-primary flex-fill">
-                                        Add to Cart
-                                    </button>
+                                    <a href="{{ route('admin.products.edit', $product->id) }}"
+                                    class="tb-btn-secondary flex-fill text-center">
+                                        Edit
+                                    </a>
+
+                                    <form action="{{ route('admin.products.destroy', $product->id) }}"
+                                        method="POST"
+                                        class="flex-fill"
+                                        onsubmit="return confirm('Delete this product?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="tb-btn-danger w-100">
+                                            Delete
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

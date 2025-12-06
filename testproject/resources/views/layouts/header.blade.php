@@ -27,9 +27,13 @@
                         type="text"
                         name="q"
                         value="{{ request('q') }}"
-                        class="tb-input-rounded flex-grow-1"
+                        class="tb-input-rounded"
                         placeholder="Search for products..."
-                        style="padding-left:1rem;"
+                        style="
+                            padding-left:1rem;
+                            width: 480px;          /* fixed desktop width */
+                            max-width: 100%;       /* shrink on smaller screens */
+                        "
                     >
 
                     <button type="submit" class="tb-btn-primary d-inline-flex align-items-center">
@@ -43,55 +47,55 @@
 
 
                 {{-- Filter --}}
-                <div class="dropdown">
-                    <button
-                        type="button"
-                        class="tb-pill-link dropdown-toggle d-inline-flex align-items-center"
-                        id="filterDropdown"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                        style="border:1px solid rgba(148,163,184,0.5);white-space:nowrap;"
-                    >
-                        <img
-                            src="{{ asset('images/filter_icon.png') }}"
-                            alt="Filter"
-                            style="height:16px;width:16px;opacity:0.85;margin-right:0.35rem;"
+                @unless(request()->routeIs('products.show'))
+                    <div class="dropdown">
+                        <button
+                            type="button"
+                            class="tb-pill-link dropdown-toggle d-inline-flex align-items-center"
+                            id="filterDropdown"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            style="border:1px solid rgba(148,163,184,0.5);white-space:nowrap;"
                         >
-                        Categories
-                    </button>
+                            <img
+                                src="{{ asset('images/filter_icon.png') }}"
+                                alt="Filter"
+                                style="height:16px;width:16px;opacity:0.85;margin-right:0.35rem;"
+                            >
+                            Categories
+                        </button>
 
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
-                        {{-- CLEAR CATEGORY --}}
-                        @php
-                            // Preserve q but remove category
-                            $clearCategoryUrl = request('q')
-                                ? url('/?q=' . urlencode(request('q')))
-                                : url('/');
-                        @endphp
-
-                        @if(request('category'))
-                            <li>
-                                <a class="dropdown-item text-danger fw-semibold" href="{{ $clearCategoryUrl }}">
-                                    Clear
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                        @endif
-                        @foreach($recentCategories as $cat)
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
                             @php
-                                // Preserve search query when clicking categories
-                                $queryString = request('q') ? '&q=' . urlencode(request('q')) : '';
+                                $clearCategoryUrl = request('q')
+                                    ? url('/?q=' . urlencode(request('q')))
+                                    : url('/');
                             @endphp
 
-                            <li>
-                                <a class="dropdown-item"
-                                href="{{ url('/?category=' . $cat['id'] . $queryString) }}">
-                                    {{ ucfirst($cat['name']) }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
+                            @if(request('category'))
+                                <li>
+                                    <a class="dropdown-item text-danger fw-semibold" href="{{ $clearCategoryUrl }}">
+                                        Clear
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                            @endif
+
+                            @foreach(($recentCategories ?? []) as $cat)
+                                @php
+                                    $queryString = request('q') ? '&q=' . urlencode(request('q')) : '';
+                                @endphp
+                                <li>
+                                    <a class="dropdown-item"
+                                    href="{{ url('/?category=' . $cat['id'] . $queryString) }}">
+                                        {{ ucfirst($cat['name']) }}
+                                    </a>
+                                </li>
+                            @endforeach
+
+                        </ul>
+                    </div>
+                @endunless
             </div>
 
             {{-- RIGHT: Navbar --}}

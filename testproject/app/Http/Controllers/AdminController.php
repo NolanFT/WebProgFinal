@@ -33,7 +33,7 @@ class AdminController extends Controller
             'price'       => ['required', 'integer', 'min:0'],
             'description' => ['nullable', 'string'],
             'quantity'    => ['required', 'integer', 'min:0'],
-            'category_id' => ['required', 'exists:categories,id'],
+            'category_id' => ['nullable', 'exists:categories,id'],
             'image'       => ['nullable', 'string', 'max:255'], // path or URL
         ]);
 
@@ -70,7 +70,7 @@ class AdminController extends Controller
             'price'       => ['required', 'integer', 'min:0'],
             'description' => ['nullable', 'string'],
             'quantity'    => ['required', 'integer', 'min:0'],
-            'category_id' => ['required', 'exists:categories,id'],
+            'category_id' => ['nullable', 'exists:categories,id'],
             'image'       => ['nullable', 'string', 'max:255'],
         ]);
 

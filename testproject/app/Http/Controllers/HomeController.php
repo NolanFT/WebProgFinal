@@ -13,36 +13,42 @@ class HomeController extends Controller
      */
     public function home(Request $request)
     {
-        $categoryId = $request->input('category');  // category_id
-        $query      = $request->input('q');         // search term
+        $categoryId = $request->filled('category') ? (int) $request->input('category') : null;
 
-        // Load categories from DB
+        $query = $request->input('q');
+
+        // Load categories
         $categories = Category::orderBy('name')->get();
 
+        // Map id → name for Blade
+        $categoryNames = $categories
+            ->pluck('name', 'id')
+            ->toArray();
+
         // Base product query
-        $products = Product::query();
+        $productsQuery = Product::query();
 
         // FILTER BY CATEGORY
-        if ($categoryId) {
-            $products->where('category_id', intval($categoryId));
+        if (!is_null($categoryId)) {
+            $productsQuery->where('category_id', $categoryId);
         }
 
         // FILTER BY SEARCH
         if ($query) {
             $q = strtolower($query);
-            $products->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]);
+            $productsQuery->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]);
         }
 
-        $products = $products->get();
+        $products = $productsQuery->get();
 
         // RECENT CATEGORIES (max 3)
         $recentCategories = $categories;
 
-        if ($categoryId && $categories->pluck('id')->contains(intval($categoryId))) {
-            $selected = $categories->firstWhere('id', intval($categoryId));
+        if (!is_null($categoryId) && $categories->pluck('id')->contains($categoryId)) {
+            $selected = $categories->firstWhere('id', $categoryId);
 
             $recentCategories = collect([$selected])->merge(
-                $categories->where('id', '!=', intval($categoryId))
+                $categories->where('id', '!=', $categoryId)
             );
         }
 
@@ -54,6 +60,7 @@ class HomeController extends Controller
             'query'            => $query,
             'recentCategories' => $recentCategories,
             'categories'       => $categories,
+            'categoryNames'    => $categoryNames,
         ]);
     }
 

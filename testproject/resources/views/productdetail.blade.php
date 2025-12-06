@@ -24,12 +24,19 @@
         <div class="col-md-7">
 
             {{-- CATEGORY --}}
-            <a href="{{ url('/?category=' . $product->category_id) }}">
+            @if($product->category_id && $product->category)
+                <a href="{{ url('/?category=' . $product->category_id) }}">
+                    <span class="badge rounded-pill"
+                        style="background:#facc15;color:#111827;font-size:0.75rem;">
+                        {{ strtoupper($product->category->name) }}
+                    </span>
+                </a>
+            @else
                 <span class="badge rounded-pill"
-                      style="background:#facc15;color:#111827;font-size:0.75rem;">
-                    {{ strtoupper($product->category->name) }}
+                    style="background:#9ca3af;color:#111827;font-size:0.75rem;">
+                    UNCATEGORIZED
                 </span>
-            </a>
+            @endif
 
             {{-- NAME --}}
             <h1 class="mt-2 mb-2" style="font-size:1.4rem;font-weight:600;">
@@ -53,17 +60,30 @@
 
             {{-- BACK --}}
             <a href="{{ route('home') }}"
-            class="tb-pill-link d-inline-flex align-items-center"
-            style="gap:0.35rem;margin-left:0.5rem;">
-                
-                <img
-                    src="{{ asset('images/home_icon.png') }}"
-                    alt="Home"
-                    style="height:16px;width:16px;opacity:0.85;"
-                >
+                class="d-inline-flex align-items-center"
+                style="
+                        gap:0.35rem;
+                        margin-left:0.5rem;
+                        padding:0.4rem 0.9rem;
+                        border-radius:999px;
+                        background:#9ca3af;     /* gray background */
+                        color:#ffffff;          /* white text */
+                        font-size:0.85rem;
+                        font-weight:500;
+                        text-decoration:none;
+                        transition:background 0.2s ease;
+                "
+                onmouseover="this.style.background='#000000'"
+                onmouseout="this.style.background='#9ca3af'">
 
-                Back to Home
-            </a>
+                    <img
+                        src="{{ asset('images/home_icon.png') }}"
+                        alt="Home"
+                        style="height:16px;width:16px;opacity:0.85;"
+                    >
+
+                    Back To Home
+                </a>
         </div>
     </div>
 
