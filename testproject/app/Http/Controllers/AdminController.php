@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -21,6 +22,24 @@ class AdminController extends Controller
             'products'   => $products,
             'categories' => $categories,
         ]);
+    }
+
+    public function indexForUser(Request $request, string $username)
+    {
+        if (!session('user_id')) {
+            return redirect()->route('login');
+        }
+
+        $sessionName  = session('name');
+        $expectedSlug = Str::slug($sessionName);
+
+        if ($username !== $expectedSlug) {
+            return redirect()->route('admin.user', [
+                'username' => $expectedSlug,
+            ] + $request->query());
+        }
+
+        return $this->index();
     }
 
     /**

@@ -5,7 +5,7 @@
         <div class="d-flex align-items-center mb-2" style="gap: 0.6rem;">
             <a href="{{ url('/') }}" class="d-inline-flex align-items-center" style="gap:0.5rem;">
                 <img
-                    src="{{ asset('images/the_boys_logo.jpg') }}"
+                    src="{{ asset('images/theboys_logo.jpg') }}"
                     alt="The Boys Logo"
                     style="height:42px;width:auto;border-radius:0.4rem;object-fit:cover;background:#0f172a;"
                 >
@@ -100,21 +100,46 @@
 
             {{-- RIGHT: Navbar --}}
             <nav class="d-flex flex-wrap align-items-center justify-content-end" style="gap:0.4rem;">
+                @php
+                    $loggedIn = session('user_id') !== null;
+                    $userSlug = $loggedIn ? \Illuminate\Support\Str::slug(session('name')) : null;
+                @endphp
 
-                <a href="{{ route('home') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
-                    <img src="{{ asset('images/home_icon.png') }}" alt="Home" style="height:16px;width:16px;opacity:0.85;">
-                    Home
-                </a>
+                {{-- HOME --}}
+                @if($loggedIn)
+                    <a href="{{ route('home.user', ['username' => $userSlug]) }}"
+                    class="tb-pill-link d-inline-flex align-items-center"
+                    style="gap:0.35rem;">
+                        <img src="{{ asset('images/home_icon.png') }}" alt="Home" style="height:16px;width:16px;opacity:0.85;">
+                        Home
+                    </a>
+                @else
+                    <a href="{{ route('home') }}"
+                    class="tb-pill-link d-inline-flex align-items-center"
+                    style="gap:0.35rem;">
+                        <img src="{{ asset('images/home_icon.png') }}" alt="Home" style="height:16px;width:16px;opacity:0.85;">
+                        Home
+                    </a>
+                @endif
 
+                {{-- CART (requires login to be useful, but can stay public for now) --}}
                 <a href="{{ route('cart') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
                     <img src="{{ asset('images/cart_icon.png') }}" alt="Cart" style="height:16px;width:16px;opacity:0.85;">
                     Cart
                 </a>
 
-                <a href="{{ route('account') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
-                    <img src="{{ asset('images/account_icon.png') }}" alt="Account" style="height:16px;width:16px;opacity:0.85;">
-                    Account
-                </a>
+                {{-- ACCOUNT / LOGIN --}}
+                @if($loggedIn)
+                    <a href="{{ route('account') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
+                        <img src="{{ asset('images/account_icon.png') }}" alt="Account" style="height:16px;width:16px;opacity:0.85;">
+                        Account
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
+                        <img src="{{ asset('images/account_icon.png') }}" alt="Login" style="height:16px;width:16px;opacity:0.85;">
+                        Login
+                    </a>
+                @endif
 
             </nav>
         </div>

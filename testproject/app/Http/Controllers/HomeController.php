@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use Illuminate\Support\Str;
 
 class HomeController extends Controller
 {
@@ -64,6 +65,23 @@ class HomeController extends Controller
         ]);
     }
 
+    public function homeForUser(Request $request, string $username)
+    {
+        if (!session('user_id')) {
+            return redirect()->route('login');
+        }
+
+        $sessionName  = session('name');
+        $expectedSlug = Str::slug($sessionName);
+
+        if ($username !== $expectedSlug) {
+            return redirect()->route('home.user', [
+                'username' => $expectedSlug,
+            ] + $request->query());
+        }
+        return $this->home($request);
+    }
+    
     /**
      * Product detail page.
      */
