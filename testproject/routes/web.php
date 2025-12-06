@@ -2,20 +2,20 @@
 
 use Illuminate\Support\Facades\Route;
 // use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminController;
 
 // Home
-Route::get('/', [CategoryController::class, 'home'])->name('home');
+Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::redirect('/home', '/')->name('home.redirect');
 
 // Product detail page
-Route::get('/products/{id}', [CategoryController::class, 'productDetail'])
+Route::get('/products/{id}', [HomeController::class, 'productDetail'])
     ->name('products.show');
 // Route::get('/products', [ProductController::class, 'index'])->name('products');
 
 // // Products by category
-// Route::get('/products/category/{id}', [CategoryController::class, 'show'])
+// Route::get('/products/category/{id}', [HomeController::class, 'show'])
 //     ->name('products.category');
 
 // // Single product details

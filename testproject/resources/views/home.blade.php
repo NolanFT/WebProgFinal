@@ -14,7 +14,7 @@
             <div class="row align-items-end gy-3">
                 <div class="col-md-8">
                     <span class="badge rounded-pill" style="background:#facc15;color:#111827;font-size:0.7rem;letter-spacing:0.08em;">
-                        ELECTRONICS & TOYS MARKETPLACE
+                        MARKETPLACE
                     </span>
                     <h1 class="mt-2 mb-2" style="font-size:1.6rem;font-weight:600;">
                         Welcome to The Boys

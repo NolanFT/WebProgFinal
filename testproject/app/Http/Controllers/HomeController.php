@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 
-class CategoryController extends Controller
+class HomeController extends Controller
 {
     /**
      * Homepage: list products with category + search filters.
