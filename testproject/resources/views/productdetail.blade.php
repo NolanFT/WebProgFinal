@@ -62,7 +62,7 @@
             </p>
 
             {{-- DESCRIPTION --}}
-            <p style="font-size:0.9rem;color:var(--tb-gray-text);">
+            <p style="font-size:0.9rem;color:var(--tb-gray-text);  white-space:pre-line;">
                 {{ $product->description ?? 'No description available.' }}
             </p>
 
@@ -76,49 +76,60 @@
                 </button>
             @else
                 @if($loggedIn)
-                    <form method="POST"
-                        action="{{ route('cart.add', [
-                            'username' => $userSlug,
-                            'product'  => $product->id,
-                        ]) }}"
-                        class="d-inline-block tb-add-to-cart-form"
-                        data-max="{{ $product->quantity }}">
-                        @csrf
-                        <input type="hidden" name="quantity" value="1">
+                <form method="POST"
+                    action="{{ route('cart.add', [
+                        'username' => $userSlug,
+                        'product'  => $product->id,
+                    ]) }}"
+                    class="d-inline-block tb-add-to-cart-form"
+                    data-max="{{ $product->quantity }}">
+                    @csrf
+                    {{-- REMOVE the old hidden quantity input --}}
+                    {{-- <input type="hidden" name="quantity" value="1"> --}}
 
-                        {{-- State 1 --}}
-                        <div class="d-flex tb-add-to-cart-inactive">
-                            <button type="button" class="tb-btn-primary tb-add-to-cart-trigger">
-                                Add to Cart
+                    {{-- State 1 --}}
+                    <div class="d-flex tb-add-to-cart-inactive">
+                        <button type="button" class="tb-btn-primary tb-add-to-cart-trigger">
+                            Add to Cart
+                        </button>
+                    </div>
+
+                    {{-- State 2 --}}
+                    <div class="d-flex align-items-center tb-add-to-cart-active d-none" style="gap:0.4rem;">
+                        <div class="d-flex align-items-center" style="gap:0.3rem;">
+
+                            <button type="button"
+                                    class="btn btn-sm"
+                                    style="border-radius:999px;border:1px solid #d1d5db;padding:0.1rem 0.5rem;"
+                                    data-role="qty-minus">
+                                –
+                            </button>
+
+                            {{-- THIS is now the ONLY quantity input --}}
+                            <input
+                                type="number"
+                                name="quantity"
+                                value="1"
+                                min="1"
+                                max="{{ $product->quantity }}"
+                                class="tb-qty-display"
+                                style="min-width:28px;text-align:center;font-weight:500;border:none;outline:none;background:transparent;-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;"
+                            >
+
+                            <button type="button"
+                                    class="btn btn-sm"
+                                    style="border-radius:999px;border:1px solid #d1d5db;padding:0.1rem 0.5rem;"
+                                    data-role="qty-plus">
+                                +
                             </button>
                         </div>
 
-                        {{-- State 2 --}}
-                        <div class="d-flex align-items-center tb-add-to-cart-active d-none" style="gap:0.4rem;">
-                            <div class="d-flex align-items-center" style="gap:0.3rem;">
-                                <button type="button"
-                                        class="btn btn-sm"
-                                        style="border-radius:999px;border:1px solid #d1d5db;padding:0.1rem 0.5rem;"
-                                        data-role="qty-minus">
-                                    –
-                                </button>
-                                <div class="tb-qty-display" style="min-width:28px;text-align:center;font-weight:500;">
-                                    1
-                                </div>
-                                <button type="button"
-                                        class="btn btn-sm"
-                                        style="border-radius:999px;border:1px solid #d1d5db;padding:0.1rem 0.5rem;"
-                                        data-role="qty-plus">
-                                    +
-                                </button>
-                            </div>
-
-                            <button type="submit" class="tb-btn-primary">
-                                Add to Cart
-                            </button>
-                        </div>
-                    </form>
-                @else
+                        <button type="submit" class="tb-btn-primary">
+                            Add to Cart
+                        </button>
+                    </div>
+                </form>
+            @else
                     <a href="{{ route('login') }}"
                     class="tb-btn-primary"
                     style="display:inline-flex;align-items:center;justify-content:center;">

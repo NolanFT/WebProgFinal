@@ -55,8 +55,16 @@
                 @endphp
 
                 {{-- All --}}
+                @php
+                    if ($userId) {
+                        $allUrl = route('home.user', ['username' => $userSlug]) . ($query ? '?q=' . urlencode($query) : '');
+                    } else {
+                        $allUrl = url('/') . ($query ? '?q=' . urlencode($query) : '');
+                    }
+                @endphp
+
                 <a
-                    href="{{ url('/').($query ? '?q='.urlencode($query) : '') }}"
+                    href="{{ $allUrl }}"
                     class="tb-pill-link"
                     style="
                         background: {{ $isAllActive ? 'var(--tb-blue)' : 'rgba(15,23,42,0.06)' }};
@@ -72,7 +80,16 @@
                 @foreach($recentCategories as $cat)
                     @php
                         $isActive = $categoryId === $cat['id'];
-                        $catUrl = url('/?category='.$cat['id'].($query ? '&q='.urlencode($query) : ''));
+
+                        if ($userId) {
+                            // logged in → keep /u/{username}
+                            $catUrl = route('home.user', ['username' => $userSlug])
+                                . '?category=' . $cat['id']
+                                . ($query ? '&q=' . urlencode($query) : '');
+                        } else {
+                            // guest view
+                            $catUrl = url('/?category=' . $cat['id'] . ($query ? '&q=' . urlencode($query) : ''));
+                        }
                     @endphp
 
                     <a
@@ -147,7 +164,14 @@
                                             $catId = $product['category_id'];
 
                                             if (!is_null($catId)) {
-                                                $catUrl   = url('/?category=' . $catId . ($query ? '&q=' . urlencode($query) : ''));
+                                                if ($userId) {
+                                                    $catUrl = route('home.user', ['username' => $userSlug])
+                                                        . '?category=' . $catId
+                                                        . ($query ? '&q=' . urlencode($query) : '');
+                                                } else {
+                                                    $catUrl = url('/?category=' . $catId . ($query ? '&q=' . urlencode($query) : ''));
+                                                }
+
                                                 $catLabel = ucfirst($categoryNames[$catId] ?? 'Unknown');
                                             } else {
                                                 $catUrl   = null;

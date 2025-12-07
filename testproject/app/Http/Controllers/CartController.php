@@ -7,6 +7,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -37,9 +38,12 @@ class CartController extends Controller
             return $carry + ($item->product->price * $item->quantity);
         }, 0);
 
+        $categories = Category::orderBy('name')->get();
+
         return view('cart', [
-            'items' => $items,
-            'total' => $total,
+            'items'      => $items,
+            'total'      => $total,
+            'categories' => $categories,
         ]);
     }
 
@@ -53,7 +57,7 @@ class CartController extends Controller
         }
 
         $request->validate([
-            'quantity' => ['required', 'integer', 'min:1'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:' . $product->quantity],
         ]);
 
         $requestedQty = (int) $request->input('quantity', 1);
@@ -101,7 +105,6 @@ class CartController extends Controller
 
     /**
      * Update quantity for a cart item.
-     * If quantity = 0 => remove item.
      */
     public function update(Request $request, $username, CartItem $item)
     {
@@ -114,6 +117,27 @@ class CartController extends Controller
         ]);
 
         $qty = (int) $request->quantity;
+
+        $product = $item->product;
+
+        if ($product) {
+            $stock = (int) $product->quantity;
+
+            // If stock is 0 or below, remove item from cart
+            if ($stock <= 0) {
+                $item->delete();
+
+                $slug = Str::slug(session('name'));
+
+                return redirect()
+                    ->route('cart', ['username' => $slug])
+                    ->with('error', 'This product is out of stock and has been removed from your cart.');
+            }
+
+            if ($qty > $stock) {
+                $qty = $stock;
+            }
+        }
 
         if ($qty <= 0) {
             $item->delete();

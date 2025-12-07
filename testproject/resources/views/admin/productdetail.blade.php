@@ -84,12 +84,11 @@
             </p>
 
             {{-- DESCRIPTION --}}
-            <p style="font-size:0.9rem;color:var(--tb-gray-text);">
+            <p style="font-size:0.9rem;color:var(--tb-gray-text);  white-space:pre-line;">
                 {{ $product->description ?? 'No description available.' }}
             </p>
 
             <hr class="my-3">
-
             {{-- EDIT FORM --}}
             <h2 style="font-size:1rem;font-weight:600;margin-bottom:0.75rem;">Edit Product</h2>
 

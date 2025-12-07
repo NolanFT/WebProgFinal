@@ -43,18 +43,22 @@
 
                     {{-- IMAGE --}}
                     <div style="flex:0 0 90px;">
-                        <div class="ratio ratio-1x1">
+                        <a href="{{ route('products.show.user', ['username' => $userSlug, 'id' => $product->id]) }}"
+                        class="ratio ratio-1x1 d-block">
                             <img src="{{ $product->image }}"
-                                 alt="{{ $product->name }}"
-                                 class="w-100 h-100"
-                                 style="object-fit:cover;border-radius:0.5rem;">
-                        </div>
+                                alt="{{ $product->name }}"
+                                class="w-100 h-100"
+                                style="object-fit:cover;border-radius:0.5rem;">
+                        </a>
                     </div>
 
                     {{-- NAME + CATEGORY --}}
                     <div class="flex-grow-1">
                         <div style="font-size:0.95rem;font-weight:600;">
-                            {{ $product->name }}
+                            <a href="{{ route('products.show.user', ['username' => $userSlug, 'id' => $product->id]) }}"
+                            style="color:inherit;text-decoration:none;">
+                                {{ $product->name }}
+                            </a>
                         </div>
                         <div style="font-size:0.8rem;color:var(--tb-gray-text);">
                             {{ ucfirst($categoryName) }}
@@ -74,8 +78,6 @@
                         <div style="font-size:0.85rem;color:var(--tb-gray-text);text-align:center;">Quantity</div>
 
                         <div class="d-flex align-items-center justify-content-center" style="gap:0.4rem;">
-
-                            {{-- - button --}}
                             <form method="POST"
                                   action="{{ route('cart.item.update', ['username' => $userSlug, 'item' => $item->id]) }}">
                                 @csrf
@@ -87,22 +89,33 @@
                                 </button>
                             </form>
 
-                            <div style="min-width:32px;text-align:center;font-weight:500;">
-                                {{ $item->quantity }}
-                            </div>
+                            <input
+                                type="number"
+                                value="{{ $item->quantity }}"
+                                min="0"
+                                max="{{ $product->quantity }}"
+                                class="cart-qty-input"
+                                style="
+                                    min-width:32px;
+                                    max-width:48px;
+                                    text-align:center;
+                                    font-weight:500;
+                                    border:none;
+                                    outline:none;
+                                    background:transparent;
+                                "
+                            >
 
-                            {{-- + button --}}
                             <form method="POST"
                                   action="{{ route('cart.item.update', ['username' => $userSlug, 'item' => $item->id]) }}">
                                 @csrf
-                                <input type="hidden" name="quantity" value="{{ $item->quantity + 1 }}">
+                                <input type="hidden" name="quantity" value="{{ min($item->quantity + 1, $product->quantity) }}">
                                 <button type="submit"
                                         class="btn btn-sm"
                                         style="border-radius:999px;border:1px solid #d1d5db;padding:0.1rem 0.5rem;">
                                     +
                                 </button>
                             </form>
-
                         </div>
                     </div>
 

@@ -1,3 +1,17 @@
+<style>
+    .tb-category-dropdown {
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-rows: repeat(5, auto);
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+    .tb-category-dropdown .dropdown-item {
+        white-space: nowrap;
+    }
+</style>
+
 <header class="tb-header-fixed">
     <div class="tb-container">
 
@@ -99,7 +113,6 @@
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
-
                             @if(request('category'))
                                 <li>
                                     <a class="dropdown-item text-danger fw-semibold" href="{{ $clearCategoryUrl }}">
@@ -109,18 +122,20 @@
                                 <li><hr class="dropdown-divider"></li>
                             @endif
 
-                            @foreach(($recentCategories ?? []) as $cat)
-                                @php
-                                    $queryString = request('q') ? '&q=' . urlencode(request('q')) : '';
-                                    $catUrl      = $searchBaseUrl.'?category='.$cat['id'].$queryString;
-                                @endphp
-                                <li>
-                                    <a class="dropdown-item" href="{{ $catUrl }}">
-                                        {{ ucfirst($cat['name']) }}
-                                    </a>
-                                </li>
-                            @endforeach
+                            <li>
+                                <div class="tb-category-dropdown">
+                                    @foreach(($categories ?? []) as $cat)
+                                        @php
+                                            $queryString = request('q') ? '&q=' . urlencode(request('q')) : '';
+                                            $catUrl      = $searchBaseUrl.'?category='.$cat['id'].$queryString;
+                                        @endphp
 
+                                        <a class="dropdown-item" href="{{ $catUrl }}">
+                                            {{ ucfirst($cat['name']) }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </li>
                         </ul>
                     </div>
                 @endif

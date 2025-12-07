@@ -4,18 +4,30 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Str;
 
 class Admin
 {
     /**
      * Handle an incoming request.
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-        if (session('role') !== 'admin') {
-            return redirect('/')->with('error', 'Admin access required.');
+        // Guest
+        if (!session('user_id')) {
+            return redirect()->route('login');
         }
+
+        // User
+        if (session('role') !== 'admin') {
+            $slug = Str::slug(session('name'));
+
+            return redirect()->route('home.user', [
+                'username' => $slug,
+            ]);
+        }
+
+        // Admin
         return $next($request);
     }
 }
