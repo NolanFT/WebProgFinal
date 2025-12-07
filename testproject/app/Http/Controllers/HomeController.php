@@ -85,14 +85,21 @@ class HomeController extends Controller
     /**
      * Product detail page.
      */
-    public function productDetail($id)
+    public function productDetail(Request $request, $param1, $param2 = null)
     {
-        $product = Product::with('category')->find($id);
+        $id = $param2 ?? $param1;
 
-        if (!$product) {
-            abort(404, "Product not found.");
+        $product = Product::with('category')->findOrFail($id);
+
+        if ($request->routeIs('products.show.admin')) {
+            return view('productdetail_admin', [
+                'product' => $product,
+            ]);
         }
 
-        return view('productdetail', compact('product'));
+        // Guest / user detail view
+        return view('productdetail', [
+            'product' => $product,
+        ]);
     }
 }

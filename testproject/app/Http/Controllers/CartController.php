@@ -6,13 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use Illuminate\Support\Str;   // <<< ADD THIS
 
 class CartController extends Controller
 {
     /**
      * Show cart for logged-in user.
      */
-    public function index()
+    public function index($username = null)   // accept username (optional)
     {
         if (!session('user_id')) {
             return redirect()->route('login')->with('error', 'Please login to view your cart.');
@@ -20,18 +21,15 @@ class CartController extends Controller
 
         $userId = session('user_id');
 
-        // Ensure cart exists
         $cart = Cart::firstOrCreate(
             ['user_id' => $userId],
             ['user_id' => $userId]
         );
 
-        // Load items + products + categories
         $cart->load(['items.product.category']);
 
         $items = $cart->items;
 
-        // Calculate total
         $total = $items->reduce(function ($carry, CartItem $item) {
             return $carry + ($item->product->price * $item->quantity);
         }, 0);
@@ -43,15 +41,20 @@ class CartController extends Controller
     }
 
     /**
-     * Add product to cart (quantity +1).
+     * Add product to cart (with quantity).
      */
-    public function add(Product $product)
+    public function add(Request $request, $username, Product $product)
     {
         if (!session('user_id')) {
             return redirect()->route('login')->with('error', 'Please login to add items to cart.');
         }
 
-        $userId = session('user_id');
+        $request->validate([
+            'quantity' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $requestedQty = (int) $request->input('quantity', 1);
+        $userId       = session('user_id');
 
         $cart = Cart::firstOrCreate(
             ['user_id' => $userId],
@@ -63,17 +66,41 @@ class CartController extends Controller
             ['quantity' => 0]
         );
 
-        $item->quantity += 1;
+        $currentQty = $item->quantity;
+        $newQty     = $currentQty + $requestedQty;
+
+        // Enforce stock
+        if ($newQty > $product->quantity) {
+            $maxAddable = max($product->quantity - $currentQty, 0);
+
+            $slug = Str::slug(session('name'));
+
+            if ($maxAddable <= 0) {
+                return redirect()
+                    ->route('cart', ['username' => $slug])
+                    ->with('error', 'Not enough stock for this product.');
+            }
+
+            return redirect()
+                ->route('cart', ['username' => $slug])
+                ->with('error', 'You can only add up to ' . $maxAddable . ' more of this item.');
+        }
+
+        $item->quantity = $newQty;
         $item->save();
 
-        return back()->with('success', 'Item added to cart.');
+        $slug = Str::slug(session('name'));
+
+        return redirect()
+            ->route('cart', ['username' => $slug])
+            ->with('success', 'Item added to cart.');
     }
 
     /**
      * Update quantity for a cart item.
      * If quantity = 0 => remove item.
      */
-    public function update(Request $request, CartItem $item)
+    public function update(Request $request, $username, CartItem $item)
     {
         if (!session('user_id')) {
             return redirect()->route('login')->with('error', 'Please login first.');
@@ -92,6 +119,10 @@ class CartController extends Controller
             $item->save();
         }
 
-        return redirect()->route('cart')->with('success', 'Cart updated.');
+        $slug = Str::slug(session('name'));
+
+        return redirect()
+            ->route('cart', ['username' => $slug])
+            ->with('success', 'Cart updated.');
     }
 }

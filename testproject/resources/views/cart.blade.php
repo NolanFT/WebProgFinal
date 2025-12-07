@@ -2,6 +2,12 @@
 
 @section('title', 'Your Cart – The Boys')
 
+@php
+    use Illuminate\Support\Str;
+
+    $userSlug = Str::slug(session('name'));
+@endphp
+
 @section('content')
 
 <div class="tb-card p-3 p-md-4 mb-3">
@@ -27,9 +33,9 @@
         <div class="d-flex flex-column" style="gap:0.75rem;">
             @foreach($items as $item)
                 @php
-                    $product = $item->product;
+                    $product      = $item->product;
                     $categoryName = $product->category->name ?? 'Uncategorized';
-                    $lineTotal = $product->price * $item->quantity;
+                    $lineTotal    = $product->price * $item->quantity;
                 @endphp
 
                 <div class="d-flex flex-wrap align-items-center"
@@ -70,7 +76,8 @@
                         <div class="d-flex align-items-center justify-content-center" style="gap:0.4rem;">
 
                             {{-- - button --}}
-                            <form method="POST" action="{{ route('cart.item.update', $item->id) }}">
+                            <form method="POST"
+                                  action="{{ route('cart.item.update', ['username' => $userSlug, 'item' => $item->id]) }}">
                                 @csrf
                                 <input type="hidden" name="quantity" value="{{ max($item->quantity - 1, 0) }}">
                                 <button type="submit"
@@ -86,7 +93,8 @@
                             </div>
 
                             {{-- + button --}}
-                            <form method="POST" action="{{ route('cart.item.update', $item->id) }}">
+                            <form method="POST"
+                                  action="{{ route('cart.item.update', ['username' => $userSlug, 'item' => $item->id]) }}">
                                 @csrf
                                 <input type="hidden" name="quantity" value="{{ $item->quantity + 1 }}">
                                 <button type="submit"

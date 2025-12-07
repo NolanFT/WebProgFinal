@@ -12,15 +12,59 @@ class AdminController extends Controller
     /**
      * Show admin dashboard with lists of products and categories.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // This expects products and categories tables to exist
-        $products   = Product::with('category')->orderBy('id')->get();
-        $categories = Category::orderBy('id')->get();
+        // Same filter logic as home()
+        $categoryId = $request->filled('category')
+            ? (int) $request->input('category')
+            : null;
+
+        $query = $request->input('q');
+
+        // Categories
+        $categories = Category::orderBy('name')->get();
+        $categoryNames = $categories->pluck('name', 'id')->toArray();
+
+        // Base product query
+        $productsQuery = Product::with('category');
+
+        // Filter by category
+        if (!is_null($categoryId)) {
+            $productsQuery->where('category_id', $categoryId);
+        }
+
+        // Filter by search
+        if ($query) {
+            $q = strtolower($query);
+            $productsQuery->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]);
+        }
+
+        $products = $productsQuery->orderBy('id')->get();
+
+        // Recent categories (max 3) – same idea as home()
+        $recentCategories = $categories;
+
+        if (!is_null($categoryId) && $categories->pluck('id')->contains($categoryId)) {
+            $selected = $categories->firstWhere('id', $categoryId);
+
+            $recentCategories = collect([$selected])->merge(
+                $categories->where('id', '!=', $categoryId)
+            );
+        }
+
+        $recentCategories = $recentCategories
+            ->take(3)
+            ->map(fn ($cat) => ['id' => $cat->id, 'name' => $cat->name])
+            ->values()
+            ->all();
 
         return view('admin', [
-            'products'   => $products,
-            'categories' => $categories,
+            'products'         => $products,
+            'categories'       => $categories,
+            'categoryId'       => $categoryId,
+            'query'            => $query,
+            'recentCategories' => $recentCategories,
+            'categoryNames'    => $categoryNames,
         ]);
     }
 
@@ -42,7 +86,7 @@ class AdminController extends Controller
             ] + $request->query());
         }
 
-        return $this->index();
+        return $this->index($request);
     }
 
     /**

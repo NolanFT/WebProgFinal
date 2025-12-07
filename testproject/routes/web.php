@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\AccountController;
 
 // Guest Home
 Route::get('/', [HomeController::class, 'home'])->name('home');
@@ -47,14 +48,38 @@ Route::post('/u/{username}/cart/items/{item}/update', [CartController::class, 'u
     ->middleware('auth.user')
     ->name('cart.item.update');
 
-// Guest
+// Account Page
+// Guest account
 Route::get('/account', fn () => redirect()->route('login'))
     ->name('account.redirect');
 
-// User account
-Route::get('/u/{username}/account', fn () => view('account'))
+// User account (view)
+Route::get('/u/{username}/account', [AccountController::class, 'userAccount'])
     ->middleware('auth.user')
     ->name('account');
+
+// Admin account (view)
+Route::get('/a/{username}/account', [AccountController::class, 'adminAccount'])
+    ->middleware('admin')
+    ->name('account.admin');
+
+// Account update/delete (user)
+Route::post('/u/{username}/account/update', [AccountController::class, 'update'])
+    ->middleware('auth.user')
+    ->name('account.update');
+
+Route::post('/u/{username}/account/delete', [AccountController::class, 'destroy'])
+    ->middleware('auth.user')
+    ->name('account.delete');
+
+// Account update/delete (admin)
+Route::post('/a/{username}/account/update', [AccountController::class, 'update'])
+    ->middleware('admin')
+    ->name('account.admin.update');
+
+Route::post('/a/{username}/account/delete', [AccountController::class, 'destroy'])
+    ->middleware('admin')
+    ->name('account.admin.delete');
 
 // Admin
 Route::middleware('admin')->group(function () {
@@ -62,9 +87,6 @@ Route::middleware('admin')->group(function () {
     // Admin Home
     Route::get('/a/{username}', [AdminController::class, 'indexForUser'])
         ->name('admin.user');
-    
-    Route::get('/a/{username}/account', fn () => view('account'))
-        ->name('account.admin');
 
     // PRODUCT CRUD
     Route::post('/a/{username}/products', [AdminController::class, 'storeProduct'])
@@ -92,7 +114,6 @@ Route::middleware('admin')->group(function () {
     Route::delete('/a/{username}/categories/{category}', [AdminController::class, 'destroyCategory'])
         ->name('admin.categories.destroy');
 });
-
 
 // Authentication
 Route::get('/login',  [LoginController::class, 'show'])->name('login');

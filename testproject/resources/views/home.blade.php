@@ -2,6 +2,13 @@
 
 @section('title', 'The Boys – Home')
 
+@php
+    use Illuminate\Support\Str;
+
+    $userId   = session('user_id');
+    $userSlug = $userId ? Str::slug(session('name')) : null;
+@endphp
+
 @section('content')
 
     {{-- Hero / intro --}}
@@ -111,7 +118,11 @@
                         <div class="tb-card h-100 overflow-hidden">
 
                             {{-- Clickable image --}}
-                            <a href="{{ url('/products/'.$product['id']) }}" class="ratio ratio-4x3 d-block">
+                            <a href="{{ $userId
+                                    ? route('products.show.user', ['username' => $userSlug, 'id' => $product['id']])
+                                    : route('products.show', $product['id'])
+                                }}"
+                            class="ratio ratio-4x3 d-block">
                                 <img
                                     src="{{ $product['image'] }}"
                                     alt="{{ $product['name'] }}"
@@ -154,7 +165,11 @@
 
                                 {{-- Clickable name --}}
                                 <h3 class="mb-1" style="font-size:0.9rem;font-weight:600;">
-                                    <a href="{{ url('/products/'.$product['id']) }}" style="color:inherit;text-decoration:none;">
+                                    <a href="{{ $userId
+                                            ? route('products.show.user', ['username' => $userSlug, 'id' => $product['id']])
+                                            : route('products.show', $product['id'])
+                                        }}"
+                                    style="color:inherit;text-decoration:none;">
                                         {{ $product['name'] }}
                                     </a>
                                 </h3>
@@ -164,12 +179,53 @@
                                 </p>
 
                                 <div class="d-flex gap-2">
-                                    <form method="POST" action="{{ route('cart.add', $product['id']) }}" class="flex-fill">
-                                        @csrf
-                                        <button type="submit" class="tb-btn-primary w-100">
+                                    @if($userId)
+                                        <form method="POST"
+                                            action="{{ route('cart.add', [
+                                                'username' => $userSlug,
+                                                'product'  => $product['id'],
+                                            ]) }}"
+                                            class="flex-fill tb-add-to-cart-form"
+                                            data-max="{{ $product['quantity'] }}">
+                                            @csrf
+                                            <input type="hidden" name="quantity" value="1">
+
+                                            <div class="d-flex tb-add-to-cart-inactive">
+                                                <button type="button" class="tb-btn-primary w-100 tb-add-to-cart-trigger">
+                                                    Add to Cart
+                                                </button>
+                                            </div>
+
+                                            <div class="d-flex align-items-center tb-add-to-cart-active d-none" style="gap:0.4rem;">
+                                                <div class="d-flex align-items-center" style="gap:0.3rem;">
+                                                    <button type="button"
+                                                            class="btn btn-sm"
+                                                            style="border-radius:999px;border:1px solid #d1d5db;padding:0.1rem 0.5rem;"
+                                                            data-role="qty-minus">
+                                                        –
+                                                    </button>
+                                                    <div class="tb-qty-display" style="min-width:28px;text-align:center;font-weight:500;">
+                                                        1
+                                                    </div>
+                                                    <button type="button"
+                                                            class="btn btn-sm"
+                                                            style="border-radius:999px;border:1px solid #d1d5db;padding:0.1rem 0.5rem;"
+                                                            data-role="qty-plus">
+                                                        +
+                                                    </button>
+                                                </div>
+
+                                                <button type="submit" class="tb-btn-primary flex-grow-1 text-center">
+                                                    Add to Cart
+                                                </button>
+                                            </div>
+                                        </form>
+                                    @else
+                                        {{-- Not logged in → send to login --}}
+                                        <a href="{{ route('login') }}" class="tb-btn-primary w-100 text-center">
                                             Add to Cart
-                                        </button>
-                                    </form>
+                                        </a>
+                                    @endif
                                 </div>
                             </div>
                         </div>

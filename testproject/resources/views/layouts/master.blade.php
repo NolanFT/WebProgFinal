@@ -139,5 +139,60 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     @stack('scripts')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.tb-add-to-cart-form').forEach(function (form) {
+                var inactive = form.querySelector('.tb-add-to-cart-inactive');
+                var active   = form.querySelector('.tb-add-to-cart-active');
+                var trigger  = form.querySelector('.tb-add-to-cart-trigger');
+                var qtyInput = form.querySelector('input[name="quantity"]');
+                var qtyDisplay = form.querySelector('.tb-qty-display');
+                var minusBtn = form.querySelector('[data-role="qty-minus"]');
+                var plusBtn  = form.querySelector('[data-role="qty-plus"]');
+                var max = parseInt(form.getAttribute('data-max'), 10);
+                if (isNaN(max) || max < 1) {
+                    max = 1;
+                }
+
+                if (!trigger || !inactive || !active || !qtyInput || !qtyDisplay || !minusBtn || !plusBtn) {
+                    return;
+                }
+
+                // First click: switch layout, do NOT submit
+                trigger.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    inactive.classList.add('d-none');
+                    active.classList.remove('d-none');
+                });
+
+                // Helpers
+                function syncQty(val) {
+                    if (val < 1) val = 1;
+                    if (val > max) val = max;
+                    qtyInput.value   = val;
+                    qtyDisplay.textContent = val;
+                }
+
+                // - button
+                minusBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var val = parseInt(qtyInput.value, 10) || 1;
+                    syncQty(val - 1);
+                });
+
+                // + button
+                plusBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var val = parseInt(qtyInput.value, 10) || 1;
+                    syncQty(val + 1);
+                });
+
+                // Initialize
+                syncQty(parseInt(qtyInput.value, 10) || 1);
+            });
+        });
+        </script>
+
 </body>
 </html>

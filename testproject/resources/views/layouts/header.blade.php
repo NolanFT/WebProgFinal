@@ -1,6 +1,25 @@
 <header class="tb-header-fixed">
     <div class="tb-container">
 
+        @php
+            $loggedIn = session('user_id') !== null;
+            $userSlug = $loggedIn ? \Illuminate\Support\Str::slug(session('name')) : null;
+            $isAdmin  = $loggedIn && session('role') === 'admin';
+
+            // detect current URL context
+            $onAdminContext = request()->is('a/*');
+            $onUserContext  = request()->is('u/*');
+
+            // base URL for search/filter
+            if ($onAdminContext && $loggedIn && $isAdmin && $userSlug) {
+                $searchBaseUrl = url('/a/'.$userSlug);
+            } elseif ($onUserContext && $loggedIn && $userSlug) {
+                $searchBaseUrl = url('/u/'.$userSlug);
+            } else {
+                $searchBaseUrl = url('/');
+            }
+        @endphp
+
         {{-- Logo --}}
         <div class="d-flex align-items-center mb-2" style="gap: 0.6rem;">
             <a href="{{ url('/') }}" class="d-inline-flex align-items-center" style="gap:0.5rem;">
@@ -18,7 +37,7 @@
             <div class="d-flex flex-grow-1 align-items-center" style="gap:0.5rem;max-width:620px;min-width:260px;">
 
                 {{-- Search --}}
-                <form action="{{ url('/') }}" method="GET" class="d-flex flex-grow-1" style="gap:0.4rem;">
+                <form action="{{ $searchBaseUrl }}" method="GET" class="d-flex flex-grow-1" style="gap:0.4rem;">
                     @if(request('category'))
                         <input type="hidden" name="category" value="{{ request('category') }}">
                     @endif
@@ -31,8 +50,8 @@
                         placeholder="Search for products..."
                         style="
                             padding-left:1rem;
-                            width: 480px;          /* fixed desktop width */
-                            max-width: 100%;       /* shrink on smaller screens */
+                            width: 480px;
+                            max-width: 100%;
                         "
                     >
 
@@ -51,9 +70,12 @@
                         'home',
                         'home.user',
                         'admin.user',
-                        'cart',
-                        'cart.admin'
+                        'cart'
                     );
+
+                    $clearCategoryUrl = request('q')
+                        ? $searchBaseUrl.'?q='.urlencode(request('q'))
+                        : $searchBaseUrl;
                 @endphp
 
                 @if($showFilter)
@@ -75,11 +97,6 @@
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
-                            @php
-                                $clearCategoryUrl = request('q')
-                                    ? url('/?q=' . urlencode(request('q')))
-                                    : url('/');
-                            @endphp
 
                             @if(request('category'))
                                 <li>
@@ -93,10 +110,10 @@
                             @foreach(($recentCategories ?? []) as $cat)
                                 @php
                                     $queryString = request('q') ? '&q=' . urlencode(request('q')) : '';
+                                    $catUrl      = $searchBaseUrl.'?category='.$cat['id'].$queryString;
                                 @endphp
                                 <li>
-                                    <a class="dropdown-item"
-                                    href="{{ url('/?category=' . $cat['id'] . $queryString) }}">
+                                    <a class="dropdown-item" href="{{ $catUrl }}">
                                         {{ ucfirst($cat['name']) }}
                                     </a>
                                 </li>
@@ -109,47 +126,75 @@
 
             {{-- RIGHT: Navbar --}}
             <nav class="d-flex flex-wrap align-items-center justify-content-end" style="gap:0.4rem;">
-                @php
-                    $loggedIn = session('user_id') !== null;
-                    $userSlug = $loggedIn ? \Illuminate\Support\Str::slug(session('name')) : null;
-                @endphp
 
                 {{-- HOME --}}
                 @if($loggedIn)
-                    <a href="{{ route('home.user', ['username' => $userSlug]) }}"
-                    class="tb-pill-link d-inline-flex align-items-center"
-                    style="gap:0.35rem;">
-                        <img src="{{ asset('images/home_icon.png') }}" alt="Home" style="height:16px;width:16px;opacity:0.85;">
-                        Home
-                    </a>
+                    @if($isAdmin)
+                        <a href="{{ route('admin.user', ['username' => $userSlug]) }}"
+                           class="tb-pill-link d-inline-flex align-items-center"
+                           style="gap:0.35rem;">
+                            <img src="{{ asset('images/home_icon.png') }}" alt="Home" style="height:16px;width:16px;opacity:0.85;">
+                            Home
+                        </a>
+                    @else
+                        <a href="{{ route('home.user', ['username' => $userSlug]) }}"
+                           class="tb-pill-link d-inline-flex align-items-center"
+                           style="gap:0.35rem;">
+                            <img src="{{ asset('images/home_icon.png') }}" alt="Home" style="height:16px;width:16px;opacity:0.85;">
+                            Home
+                        </a>
+                    @endif
                 @else
                     <a href="{{ route('home') }}"
-                    class="tb-pill-link d-inline-flex align-items-center"
-                    style="gap:0.35rem;">
+                       class="tb-pill-link d-inline-flex align-items-center"
+                       style="gap:0.35rem;">
                         <img src="{{ asset('images/home_icon.png') }}" alt="Home" style="height:16px;width:16px;opacity:0.85;">
                         Home
                     </a>
                 @endif
 
-                {{-- CART (requires login to be useful, but can stay public for now) --}}
-                <a href="{{ route('cart') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
-                    <img src="{{ asset('images/cart_icon.png') }}" alt="Cart" style="height:16px;width:16px;opacity:0.85;">
-                    Cart
-                </a>
+                {{-- CART (hidden for admin) --}}
+                @if($loggedIn && !$isAdmin)
+                    <a href="{{ route('cart', ['username' => $userSlug]) }}"
+                       class="tb-pill-link d-inline-flex align-items-center"
+                       style="gap:0.35rem;">
+                        <img src="{{ asset('images/cart_icon.png') }}" alt="Cart" style="height:16px;width:16px;opacity:0.85;">
+                        Cart
+                    </a>
+                @elseif(!$loggedIn)
+                    <a href="{{ route('cart.redirect') }}"
+                       class="tb-pill-link d-inline-flex align-items-center"
+                       style="gap:0.35rem;">
+                        <img src="{{ asset('images/cart_icon.png') }}" alt="Cart" style="height:16px;width:16px;opacity:0.85;">
+                        Cart
+                    </a>
+                @endif
 
                 {{-- ACCOUNT / LOGIN --}}
                 @if($loggedIn)
-                    <a href="{{ route('account') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
-                        <img src="{{ asset('images/account_icon.png') }}" alt="Account" style="height:16px;width:16px;opacity:0.85;">
-                        Account
-                    </a>
+                    @if($isAdmin)
+                        <a href="{{ route('account.admin', ['username' => $userSlug]) }}"
+                           class="tb-pill-link d-inline-flex align-items-center"
+                           style="gap:0.35rem;">
+                            <img src="{{ asset('images/account_icon.png') }}" alt="Account" style="height:16px;width:16px;opacity:0.85;">
+                            Account
+                        </a>
+                    @else
+                        <a href="{{ route('account', ['username' => $userSlug]) }}"
+                           class="tb-pill-link d-inline-flex align-items-center"
+                           style="gap:0.35rem;">
+                            <img src="{{ asset('images/account_icon.png') }}" alt="Account" style="height:16px;width:16px;opacity:0.85;">
+                            Account
+                        </a>
+                    @endif
                 @else
-                    <a href="{{ route('login') }}" class="tb-pill-link d-inline-flex align-items-center" style="gap:0.35rem;">
+                    <a href="{{ route('login') }}"
+                       class="tb-pill-link d-inline-flex align-items-center"
+                       style="gap:0.35rem;">
                         <img src="{{ asset('images/account_icon.png') }}" alt="Login" style="height:16px;width:16px;opacity:0.85;">
                         Login
                     </a>
                 @endif
-
             </nav>
         </div>
     </div>
