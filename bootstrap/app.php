@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Register global web middleware
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\EnsureDatabaseSeeded::class, 
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
