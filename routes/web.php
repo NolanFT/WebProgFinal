@@ -173,19 +173,6 @@ Route::post('/register/{locale}', [LoginController::class, 'register'])
     ->whereIn('locale', ['en', 'id'])
     ->name('register.submit');
 
-//test
-Route::get('/test-seed', function () {
-    try {
-        \DB::table('users')->insert([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'),
-        ]);
-        return 'Inserted!';
-    } catch (\Exception $e) {
-        return $e->getMessage();
-    }
-});
 
     
 // Localization
