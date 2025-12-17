@@ -22,8 +22,5 @@ class AppServiceProvider extends ServiceProvider
     if ($this->app->environment('production')) {
         \URL::forceScheme('https');
     }
-    if (\DB::table('users')->count() === 0) {
-        \Artisan::call('db:seed', ['--force' => true]);
-    }
 }
 }
