@@ -4,6 +4,7 @@ nixPkgs = ["php82", "composer", "nodejs_20"]
 [phases.build]
 cmds = [
   "composer install --no-dev --optimize-autoloader",
+  "php artisan route:clear",
   "npm install",
   "npm run build"
 ]
