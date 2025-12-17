@@ -178,3 +178,10 @@ Route::post('/register/{locale}', [LoginController::class, 'register'])
 // Localization
 Route::get('/language/{locale}', [LanguageController::class, 'switch'])
     ->name('language.switch');
+
+// Seed
+Route::get('/seed', function () {
+    \Artisan::call('db:seed', ['--force' => true]);
+    return 'Seeded!';
+});
+
