@@ -195,6 +195,17 @@
                         Home
                     </a>
                 @endif
+                    {{-- ABOUT US --}}
+                <a href="{{ route('about') }}"
+                class="tb-pill-link d-inline-flex align-items-center"
+                style="gap:0.35rem;">
+                    <img
+                        src="{{ asset('images/about_icon.png') }}"
+                        alt="About Us"
+                        style="height:16px;width:16px;opacity:0.85;"
+                    >
+                    About Us
+                </a>
 
                 {{-- ADMIN --}}
                 @if($loggedIn && $isAdmin && str_starts_with(Route::currentRouteName(), 'admin.'))
