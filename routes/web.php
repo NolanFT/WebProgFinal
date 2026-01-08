@@ -7,9 +7,13 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\AboutController;
 // Guest Home
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::redirect('/home', '/')->name('home.redirect');
+
+// About
+Route::get('/about', [AboutController::class, 'about'])->name('about');
 
 // User Home
 Route::get('/u/{username}', [HomeController::class, 'homeForUser'])
